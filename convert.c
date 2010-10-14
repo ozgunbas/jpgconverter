@@ -20,9 +20,7 @@ void fdct(int shifted[][8], int transformed[][8])
 {
   int i,j;
   double pi=3.141592654;
-  for(i=0; i < 8; i++)
-    for(j=0; j < 8; j++)
-      shifted[i][j]=origin[i][j]-128;
+
 }
 
 void printMatrix(int a[][8])
