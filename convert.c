@@ -17,6 +17,13 @@ void shift(int origin[][8], int shifted[][8])
       shifted[i][j]=origin[i][j]-128;
 }
 
+int myround(double val)
+{
+  int result = val;
+  if((val - result)>=0.5)
+    result++;
+  return result;
+}
 
 void fdct(int shifted[][8], int transformed[][8])
 {
@@ -30,7 +37,7 @@ void fdct(int shifted[][8], int transformed[][8])
     for(x=0; x < 8; x++)
       for(y=0; y < 8; y++)
 	tot += p[x][y] * cos(((2*x+1)*i*pi)/16) * cos(((2*y+1)*j*pi)/16);
-    return round(ci*cj*tot/4);
+    return myround(ci*cj*tot/4);
   }
   int ii,jj;
   for(ii=0; ii < 8; ii++)
