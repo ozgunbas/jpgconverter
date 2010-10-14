@@ -22,6 +22,8 @@ int myround(double val)
   int result = val;
   if((val - result)>=0.5)
     result++;
+  else if((val - result)<=-0.5)
+    result--;
   return result;
 }
 
@@ -30,14 +32,16 @@ void fdct(int shifted[][8], int transformed[][8])
   int apply_formula(int i,int j,int p[][8])
   {
     double pi=3.141592654;
-    double ci = i==0 ? 1:(1/sqrt(2));
-    double cj = j==0 ? 1:(1/sqrt(2));
+    //    double ci = i==0 ? 1.0:(1.0/sqrt(2));
+    //    double cj = j==0 ? 1.0:(1.0/sqrt(2));
+    double ci = i==0 ? (1.0/sqrt(8)):(0.5);
+    double cj = j==0 ? (1.0/sqrt(8)):(0.5);
     int x, y;
     double tot = 0;
     for(x=0; x < 8; x++)
       for(y=0; y < 8; y++)
 	tot += p[x][y] * cos(((2*x+1)*i*pi)/16) * cos(((2*y+1)*j*pi)/16);
-    return myround(ci*cj*tot/4);
+    return myround(ci*cj*tot);
   }
   int ii,jj;
   for(ii=0; ii < 8; ii++)
