@@ -1,5 +1,17 @@
 #include <stdio.h> 
+#include <stdlib.h> 
 #include <math.h> 
+
+int myround(double val)
+{
+  int result = val;
+  if((val - result)>=0.5)
+    result++;
+  else if((val - result)<=-0.5)
+    result--;
+  return result;
+}
+
 
 void read_input_to(int origin[][8])
 {
@@ -30,15 +42,6 @@ void shift(int origin[][8], int shifted[][8])
       shifted[i][j]=origin[i][j]-128;
 }
 
-int myround(double val)
-{
-  int result = val;
-  if((val - result)>=0.5)
-    result++;
-  else if((val - result)<=-0.5)
-    result--;
-  return result;
-}
 
 void fdct(int shifted[][8], int transformed[][8])
 {
@@ -63,23 +66,6 @@ void fdct(int shifted[][8], int transformed[][8])
   
 }
 
-void printMatrix(int a[][8])
-{
-  int i,j;
-  for(i=0; i < 8; i++)
-    {
-      for(j=0; j < 8; j++)
-	printf("%d ",a[i][j]);
-      printf("\n");
-    }
-}
-void printArray(int a[64])
-{
-  int i;
-  for(i=0; i < 64; i++)
-    printf("%d ",a[i]);
-  printf("\n");
-}
 void zigzag(int quantized[][8], int zz[64])
 {
   int i=1, j=1;
@@ -107,6 +93,49 @@ void zigzag(int quantized[][8], int zz[64])
 	}
     }
 }
+int intermediate(int zz[64], int intsym[64*3 + 2])
+{
+  int i;
+  int sss;
+  int current = 2;
+  int zeroes;
+  intsym[0] = log2(abs(zz[0]))+1;
+  intsym[1] = zz[0];
+  for(i=1;i<64;i++)
+    {
+      zeroes = 0;
+      while((zz[i]==0) && (i<64))
+	{
+	  zeroes++;i++;
+	}
+      if(i==64)
+	break;
+      sss=log2(abs(zz[i]))+1;
+      intsym[current++]=zeroes;
+      intsym[current++]=sss;
+      intsym[current++]=zz[i];
+    }
+  intsym[current++]=0;
+  intsym[current++]=0;
+  return current;
+}
+void printMatrix(int a[][8])
+{
+  int i,j;
+  for(i=0; i < 8; i++)
+    {
+      for(j=0; j < 8; j++)
+	printf("%d ",a[i][j]);
+      printf("\n");
+    }
+}
+void printArray(int a[64],int n)
+{
+  int i;
+  for(i=0; i < n; i++)
+    printf("%d ",a[i]);
+  printf("\n");
+}
 
 int main()
 {
@@ -115,6 +144,8 @@ int main()
   int transformed[8][8];
   int quantized[8][8];
   int zz[64];
+  int intsym[64*3+2];
+  int symlength;
   read_input_to(original);
   printf("\nORIGINAL\n");
   printMatrix(original);
@@ -129,7 +160,10 @@ int main()
   printMatrix(quantized);
   zigzag(quantized,zz);
   printf("\nZIGZAGED\n");
-  printArray(zz);
+  printArray(zz,64);
+  symlength=intermediate(zz,intsym);
+  printf("\nINTERMEDIATE SYMBOL\n");
+  printArray(intsym,symlength);
   return 0;
   
 }
