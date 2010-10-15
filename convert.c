@@ -2,6 +2,16 @@
 #include <stdlib.h> 
 #include <math.h> 
 
+int myround(double val);
+void read_input_to(int origin[][8]);
+void quantize(int transformed[][8], int quantized[][8]);
+void shift(int origin[][8], int shifted[][8]);
+void fdct(int shifted[][8], int transformed[][8]);
+void zigzag(int quantized[][8], int *zz);
+int intermediate(int *zz, int *intsym);
+void printMatrix(int a[][8]);
+void printArray(int *a,int n);
+
 int myround(double val)
 {
   int result = val;
@@ -48,8 +58,6 @@ void fdct(int shifted[][8], int transformed[][8])
   int apply_formula(int i,int j,int p[][8])
   {
     double pi=3.141592654;
-    //    double ci = i==0 ? 1.0:(1.0/sqrt(2));
-    //    double cj = j==0 ? 1.0:(1.0/sqrt(2));
     double ci = i==0 ? (1.0/sqrt(8)):(0.5);
     double cj = j==0 ? (1.0/sqrt(8)):(0.5);
     int x, y;
@@ -66,7 +74,7 @@ void fdct(int shifted[][8], int transformed[][8])
   
 }
 
-void zigzag(int quantized[][8], int zz[64])
+void zigzag(int quantized[][8], int *zz)
 {
   int i=1, j=1;
   int k;
@@ -93,12 +101,13 @@ void zigzag(int quantized[][8], int zz[64])
 	}
     }
 }
-int intermediate(int zz[64], int intsym[64*3 + 2])
+int intermediate(int *zz, int *intsym)
 {
   int i;
   int sss;
   int current = 2;
   int zeroes;
+  //No 0 skip for the firs element
   intsym[0] = log2(abs(zz[0]))+1;
   intsym[1] = zz[0];
   for(i=1;i<64;i++)
@@ -115,6 +124,7 @@ int intermediate(int zz[64], int intsym[64*3 + 2])
       intsym[current++]=sss;
       intsym[current++]=zz[i];
     }
+  //Adding 00 as the end of code sequence
   intsym[current++]=0;
   intsym[current++]=0;
   return current;
@@ -129,7 +139,7 @@ void printMatrix(int a[][8])
       printf("\n");
     }
 }
-void printArray(int a[64],int n)
+void printArray(int *a,int n)
 {
   int i;
   for(i=0; i < n; i++)
@@ -144,7 +154,8 @@ int main()
   int transformed[8][8];
   int quantized[8][8];
   int zz[64];
-  int intsym[64*3+2];
+  //Maximum symbol size is 64*3+1
+  int intsym[64*3+1];
   int symlength;
   read_input_to(original);
   printf("\nORIGINAL\n");
