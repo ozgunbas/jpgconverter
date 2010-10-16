@@ -11,6 +11,12 @@ void zigzag(int quantized[][8], int *zz);
 int intermediate(int *zz, int *intsym);
 void printMatrix(int a[][8]);
 void printArray(int *a,int n);
+double log2(double x);
+
+double log2(double x)
+{
+  return log(x)/log(2);
+}
 
 int myround(double val)
 {
