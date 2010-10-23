@@ -1,6 +1,7 @@
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
+#include <string.h>
 
 int myround(double val);
 void read_input_to(int origin[][8]);
@@ -135,6 +136,82 @@ int intermediate(int *zz, int *intsym)
   intsym[current++]=0;
   return current;
 }
+int encode(int *intsym, char fin[][18])
+{
+  char hufftab[11][10];
+  char codetab[16][11][18];
+  int codeLength = 2;
+  int i = 2;
+  void read_huff(char hufftab[11][10])
+  {
+    FILE *fp = fopen("Default_huffman_codewords.txt","r");
+    int i,j;
+    int foo;
+    char fooc[10];
+    for(i=0; i < 11; i++)
+      {
+	fscanf(fp,"%d%s",&foo,hufftab[i]);
+      }
+    fclose(fp);
+    fp = fopen("Huffman.txt","r");
+    for(i=0;i<16;i++)
+      for(j=0;j<11;j++)
+	{
+	  if((j!=0) || (i==0) || (i==15))
+	    {
+	      fscanf(fp,"%s%s",fooc,codetab[i][j]);
+	    }
+	}
+    fclose(fp);
+  }
+  void find_huff(int x, char *target)
+  {
+    strcpy(target,hufftab[x]);
+  }
+  
+  void convert_to_bin(int x, int sss, char *target)
+  {
+    if(sss != 0)
+      {
+	convert_to_bin(x>>1, sss - 1, target);
+	*(target+sss-1)=(char)(((int)'0')+(x&0x01));
+      }
+      
+  }
+  void to_bin(int x, int sss, char *target)
+  {
+    *(target+sss+1) = '\0';
+    if(x>=0)
+      convert_to_bin(x, sss, target);
+    else
+      {
+	int mask = pow(2,sss)-1;
+	x=abs(x);
+	x=~x;
+	x=x&mask;
+	convert_to_bin(x , sss, target);
+      }
+  }
+  void find_code(int skip,int sss, char *target)
+  {
+    strcpy(target,codetab[skip][sss]);
+  }
+  
+  read_huff(hufftab);
+  find_huff(intsym[0],fin[0]);
+  to_bin(intsym[1], intsym[0], fin[1]);
+  i=2;
+  while(!((intsym[i] == 0)&&(intsym[i+1] == 0)))
+    {
+      //what if skip>15
+      find_code(intsym[i],intsym[i+1],fin[codeLength]);
+      to_bin(intsym[i+2], intsym[i+1], fin[codeLength+1]);
+      i+=3;
+      codeLength+=2;
+    }
+  strcpy(fin[codeLength++],"1010");
+  return codeLength;
+}
 void printMatrix(int a[][8])
 {
   int i,j;
@@ -163,6 +240,8 @@ int main()
   //Maximum symbol size is 64*3+1
   int intsym[64*3+1];
   int symlength;
+  char fin[64*3][18];
+  int finlength;
   read_input_to(original);
   printf("\nORIGINAL\n");
   printMatrix(original);
@@ -181,6 +260,9 @@ int main()
   symlength=intermediate(zz,intsym);
   printf("\nINTERMEDIATE SYMBOL\n");
   printArray(intsym,symlength);
+  finlength=encode(intsym,fin);
+  printf("\nFINAL\n");
+  for(int i=0;i<finlength;i++)puts(fin[i]);
   return 0;
   
 }
