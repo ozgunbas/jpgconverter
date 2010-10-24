@@ -10,7 +10,7 @@ void shift(int origin[][8], int shifted[][8]);
 void fdct(int shifted[][8], int transformed[][8]);
 void zigzag(int quantized[][8], int *zz);
 int intermediate(int *zz, int *intsym);
-void printMatrix(int a[][8]);
+void printMatrix(int a[][8],char*);
 void printArray(int *a,int n);
 double log2(double x);
 
@@ -136,10 +136,10 @@ int intermediate(int *zz, int *intsym)
   intsym[current++]=0;
   return current;
 }
-int encode(int *intsym, char fin[][18])
+int encode(int *intsym, char fin[][19])
 {
   char hufftab[11][10];
-  char codetab[16][11][18];
+  char codetab[16][11][19];
   int codeLength = 2;
   int i = 2;
   void read_huff(char hufftab[11][10])
@@ -180,7 +180,7 @@ int encode(int *intsym, char fin[][18])
   }
   void to_bin(int x, int sss, char *target)
   {
-    *(target+sss+1) = '\0';
+    *(target+sss) = '\0';
     if(x>=0)
       convert_to_bin(x, sss, target);
     else
@@ -212,15 +212,20 @@ int encode(int *intsym, char fin[][18])
   strcpy(fin[codeLength++],"1010");
   return codeLength;
 }
-void printMatrix(int a[][8])
+void printMatrix(int a[][8], char *filename)
 {
+  FILE *fp = fopen(filename,"w"); 
   int i,j;
   for(i=0; i < 8; i++)
     {
       for(j=0; j < 8; j++)
-	printf("%d ",a[i][j]);
+	{
+	  printf("%d ",a[i][j]);
+	  fprintf(fp,"%d\n",a[i][j]);
+	}
       printf("\n");
     }
+  fclose(fp);
 }
 void printArray(int *a,int n)
 {
@@ -240,20 +245,20 @@ int main()
   //Maximum symbol size is 64*3+1
   int intsym[64*3+1];
   int symlength;
-  char fin[64*3][18];
+  char fin[64*3][19];
   int finlength;
   read_input_to(original);
   printf("\nORIGINAL\n");
-  printMatrix(original);
+  printMatrix(original,"original.txt");
   shift(original,shifted);
   printf("\nSHIFTED\n");
-  printMatrix(shifted);
+  printMatrix(shifted,"shifted.txt");
   fdct(shifted, transformed);
   printf("\nTRANSFORMED\n");
-  printMatrix(transformed);
+  printMatrix(transformed,"dct.txt");
   quantize(transformed,quantized);
   printf("\nQUANTIZED\n");
-  printMatrix(quantized);
+  printMatrix(quantized,"after_quantization.txt");
   zigzag(quantized,zz);
   printf("\nZIGZAGED\n");
   printArray(zz,64);
@@ -262,7 +267,13 @@ int main()
   printArray(intsym,symlength);
   finlength=encode(intsym,fin);
   printf("\nFINAL\n");
-  for(int i=0;i<finlength;i++)puts(fin[i]);
+  FILE *fp = fopen("final.txt","w"); 
+  for(int i=0;i<finlength;i++)
+    {
+      printf("%s\n",fin[i]);
+      fprintf(fp,"%s\n",fin[i]);
+    }
+  fclose(fp);
   return 0;
   
 }
