@@ -229,7 +229,7 @@ void printMatrix(int a[][8], char *filename)
       for(j=0; j < 8; j++)
 	{
 	  printf("%d ",a[i][j]);
-	  fprintf(fp,"%d\n",a[i][j]);
+	  fprintf(fp,"%d\r\n",a[i][j]);
 	}
       printf("\n");
     }
@@ -242,7 +242,7 @@ void printArray(int *a,int n, char *filename)
   for(i=0; i < n; i++)
     {
       printf("%d ",a[i]);
-      fprintf(fp,"%d\n",a[i]);
+      fprintf(fp,"%d\r\n",a[i]);
     }
   printf("\n");
   fclose(fp);
@@ -262,25 +262,25 @@ int main()
   int finlength;
   read_input_to(original);
   printf("\nORIGINAL\n");
-  printMatrix(original,"original.txt");
+  printMatrix(original,"Original_input_1.txt");
   shift(original,shifted);
   printf("\nSHIFTED\n");
-  printMatrix(shifted,"shifted.txt");
+  printMatrix(shifted,"SHIFT_2.txt");
   fdct(shifted, transformed);
   printf("\nTRANSFORMED\n");
-  printMatrix(transformed,"dct.txt");
+  printMatrix(transformed,"DCT_3.txt");
   quantize(transformed,quantized);
   printf("\nQUANTIZED\n");
-  printMatrix(quantized,"after_quantization.txt");
+  printMatrix(quantized,"After_quantization_4.txt");
   zigzag(quantized,zz);
   printf("\nZIGZAGED\n");
-  printArray(zz,64,"zigzag.txt");
+  printArray(zz,64,"Zig_zag_5.txt");
   symlength=intermediate(zz,intsym);
   printf("\nINTERMEDIATE SYMBOL\n");
-  printArray(intsym,symlength,"intermediate.txt");
+  printArray(intsym,symlength,"Intermediate_symbol_6.txt");
   finlength=encode(intsym,fin);
   printf("\nFINAL\n");
-  FILE *fp = fopen("final.txt","w"); 
+  FILE *fp = fopen("Final_output_7.txt","w"); 
   for(int i=0;i<finlength;i++)
     {
       printf("%s\n",fin[i]);
