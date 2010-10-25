@@ -262,7 +262,7 @@ int main()
   int finlength;
   read_input_to(original);
   printf("\nORIGINAL\n");
-  printMatrix(original,"Original_input_1.txt");
+  printMatrix(original,"original_1.txt");
   shift(original,shifted);
   printf("\nSHIFTED\n");
   printMatrix(shifted,"SHIFT_2.txt");
@@ -281,12 +281,16 @@ int main()
   finlength=encode(intsym,fin);
   printf("\nFINAL\n");
   FILE *fp = fopen("Final_output_7.txt","w"); 
+  int bitlength=0;
   for(int i=0;i<finlength;i++)
     {
-      printf("%s\n",fin[i]);
+      bitlength += strlen(fin[i]);
+      printf("%s ",fin[i]);
       fprintf(fp,"%s\r\n",fin[i]);
     }
   fclose(fp);
+  //The original data 0-256 can be represented using 8 bits so total size of the block is 8*64. bitlength is the total number of bits used
+  printf("\nCompression ratio is: %5.2f\n", 8*64.0/bitlength);
   return 0;
   
 }
