@@ -11,7 +11,7 @@ void fdct(int shifted[][8], int transformed[][8]);
 void zigzag(int quantized[][8], int *zz);
 int intermediate(int *zz, int *intsym);
 void printMatrix(int a[][8],char*);
-void printArray(int *a,int n);
+void printArray(int *a,int n,char*);
 double log2(double x);
 
 double log2(double x)
@@ -206,7 +206,15 @@ int encode(int *intsym, char fin[][19])
       //what if skip>15
       find_code(intsym[i],intsym[i+1],fin[codeLength]);
       to_bin(intsym[i+2], intsym[i+1], fin[codeLength+1]);
-      i+=3;
+      if(intsym[i] > 15)
+	{
+	  intsym[i]-=15;
+	}
+      else
+	{
+	  i+=3;
+	  
+	}
       codeLength+=2;
     }
   strcpy(fin[codeLength++],"1010");
@@ -227,12 +235,17 @@ void printMatrix(int a[][8], char *filename)
     }
   fclose(fp);
 }
-void printArray(int *a,int n)
+void printArray(int *a,int n, char *filename)
 {
   int i;
+  FILE *fp = fopen(filename,"w"); 
   for(i=0; i < n; i++)
-    printf("%d ",a[i]);
+    {
+      printf("%d ",a[i]);
+      fprintf(fp,"%d\n",a[i]);
+    }
   printf("\n");
+  fclose(fp);
 }
 
 int main()
@@ -261,17 +274,17 @@ int main()
   printMatrix(quantized,"after_quantization.txt");
   zigzag(quantized,zz);
   printf("\nZIGZAGED\n");
-  printArray(zz,64);
+  printArray(zz,64,"zigzag.txt");
   symlength=intermediate(zz,intsym);
   printf("\nINTERMEDIATE SYMBOL\n");
-  printArray(intsym,symlength);
+  printArray(intsym,symlength,"intermediate.txt");
   finlength=encode(intsym,fin);
   printf("\nFINAL\n");
   FILE *fp = fopen("final.txt","w"); 
   for(int i=0;i<finlength;i++)
     {
       printf("%s\n",fin[i]);
-      fprintf(fp,"%s\n",fin[i]);
+      fprintf(fp,"%s\r\n",fin[i]);
     }
   fclose(fp);
   return 0;
