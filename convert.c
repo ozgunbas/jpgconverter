@@ -1,3 +1,4 @@
+//Authors: Erdeniz Bas, Harshita Sharan, Swati Rathore
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <math.h> 
@@ -14,11 +15,13 @@ void printMatrix(int a[][8],char*);
 void printArray(int *a,int n,char*);
 double log2(double x);
 
+//There was no log2 in CSE computers so had write my own
 double log2(double x)
 {
   return log(x)/log(2);
 }
 
+//There was no round() in standard c so had write my own
 int myround(double val)
 {
   int result = val;
@@ -29,7 +32,7 @@ int myround(double val)
   return result;
 }
 
-
+//Reads the file from STANDARD INPUT (which means you have to use it like ./convert < file.txt)
 void read_input_to(int origin[][8])
 {
   int i,j;
@@ -37,6 +40,7 @@ void read_input_to(int origin[][8])
       for(j=0; j < 8; j++)
 	scanf("%d",&origin[i][j]);
 }
+//Quantization operation
 void quantize(int transformed[][8], int quantized[][8])
 {
   int i,j;
@@ -50,7 +54,7 @@ void quantize(int transformed[][8], int quantized[][8])
       }
   fclose(fp);
 }
-
+//Shift operation
 void shift(int origin[][8], int shifted[][8])
 {
  int i,j;
@@ -59,7 +63,7 @@ void shift(int origin[][8], int shifted[][8])
       shifted[i][j]=origin[i][j]-128;
 }
 
-
+//Forward discrete cosine transformation step
 void fdct(int shifted[][8], int transformed[][8])
 {
   int apply_formula(int i,int j,int p[][8])
@@ -80,7 +84,7 @@ void fdct(int shifted[][8], int transformed[][8])
       transformed[ii][jj]=apply_formula(ii,jj,shifted);
   
 }
-
+//Zig zag scan of the matrix
 void zigzag(int quantized[][8], int *zz)
 {
   int i=1, j=1;
@@ -108,13 +112,14 @@ void zigzag(int quantized[][8], int *zz)
 	}
     }
 }
+//Converts to intermediate form: <skip,sss,value>  returns number of elements in intermediate form
 int intermediate(int *zz, int *intsym)
 {
   int i;
   int sss;
   int current = 2;
   int zeroes;
-  //No 0 skip for the firs element
+  //No field skip for the firs element
   intsym[0] = log2(abs(zz[0]))+1;
   intsym[1] = zz[0];
   for(i=1;i<64;i++)
@@ -136,13 +141,17 @@ int intermediate(int *zz, int *intsym)
   intsym[current++]=0;
   return current;
 }
+
+//The final huffman encoding step
 int encode(int *intsym, char fin[][19])
 {
   char hufftab[11][10];
+  //codetab[skip][sss] gives corresponding code from huffman.txt
   char codetab[16][11][19];
   int codeLength = 2;
   int i = 2;
-  void read_huff(char hufftab[11][10])
+  //reads Huffman codewords from two files and loads into array hufftab
+  void read_huff()
   {
     FILE *fp = fopen("Default_huffman_codewords.txt","r");
     int i,j;
@@ -164,11 +173,12 @@ int encode(int *intsym, char fin[][19])
 	}
     fclose(fp);
   }
+  //search for value x in Default_huffman_codewords.txt and put it in the *target
   void find_huff(int x, char *target)
   {
     strcpy(target,hufftab[x]);
   }
-  
+  //converts decimal x int binary with sss bits and puts it in the *target
   void convert_to_bin(int x, int sss, char *target)
   {
     if(sss != 0)
@@ -192,6 +202,7 @@ int encode(int *intsym, char fin[][19])
 	convert_to_bin(x , sss, target);
       }
   }
+  //Searches huffman.txt for skip/sss combination and puts result in *target
   void find_code(int skip,int sss, char *target)
   {
     strcpy(target,codetab[skip][sss]);
