@@ -1,8 +1,9 @@
 ##COMPILATION
-To compile:
+
+-To compile:
 
 $make
 
-To run:
+-To run:
 
 $./covert < input_file
